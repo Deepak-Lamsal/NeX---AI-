@@ -10,14 +10,14 @@ db = SessionLocal()
 # 1. Add a user
 user = User(
     username="testuser",
-    email="test@example.com",
+    email="dlamsal234@gmail.com",
     hashed_password="not-a-real-hash",
 )
 db.add(user)
 db.commit()
 db.refresh(user)
 
-# 2. Add a conversation that belongs to that user
+# 2. Adding a conversation that belongs to that user
 convo = Conversation(title="My first chat", user_id=user.id)
 db.add(convo)
 db.commit()
