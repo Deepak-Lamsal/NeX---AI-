@@ -16,3 +16,11 @@ class UserOut(BaseModel):
     username: str
     email: EmailStr
     created_at: datetime
+    class UserLogin(BaseModel):
+    username: str
+    password: str
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
