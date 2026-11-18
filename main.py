@@ -4,13 +4,13 @@ from database import Base, engine
 from models.user import User
 from models.conversation import Conversation
 from models.message import Message
-from routers import chat
-
+from routers import chat, auth
 
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 app.include_router(chat.router)
+app.include_router(auth.router)
 
 
 @app.get("/")
