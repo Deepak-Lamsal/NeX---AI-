@@ -3,6 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from database import get_db
+from dependencies import get_current_user
 from models.user import User
 from schemas import Token, UserCreate, UserLogin, UserOut
 from security import create_access_token, hash_password, verify_password
@@ -45,4 +46,9 @@ def login(data: UserLogin, db: Session = Depends(get_db)):
         )
 
     token = create_access_token(user.id)
-    return Token(access_token=token) 
+    return Token(access_token=token)
+
+
+@router.get("/me", response_model=UserOut)
+def read_me(current_user: User = Depends(get_current_user)):
+    return current_user
