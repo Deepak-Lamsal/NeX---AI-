@@ -29,6 +29,8 @@ class Token(BaseModel):
 
 
 class ConversationCreate(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+
     title: str = Field(default="New chat", min_length=1, max_length=100)
 
 
@@ -37,4 +39,19 @@ class ConversationOut(BaseModel):
 
     id: int
     title: str
+    created_at: datetime
+
+
+class MessageCreate(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    content: str = Field(min_length=1, max_length=4000)
+
+
+class MessageOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    role: str
+    content: str
     created_at: datetime
