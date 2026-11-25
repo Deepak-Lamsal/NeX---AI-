@@ -79,3 +79,22 @@ button:hover {
   text-align: center;
   font-size: 0.9rem;
 }
+.hidden {
+  display: none;
+}
+
+.switch {
+  margin: 18px 0 0;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #8b93a7;
+}
+
+.switch a {
+  color: #6c8cff;
+  text-decoration: none;
+}
+
+.switch a:hover {
+  text-decoration: underline;
+}
