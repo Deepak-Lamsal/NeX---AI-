@@ -1,4 +1,7 @@
+from pathlib import Path
+
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 
 from database import Base, engine
 from models.user import User
@@ -8,10 +11,13 @@ from routers import auth, chat, conversations
 
 Base.metadata.create_all(bind=engine)
 
+BASE_DIR = Path(__file__).resolve().parent
+
 app = FastAPI()
 app.include_router(chat.router)
 app.include_router(auth.router)
 app.include_router(conversations.router)
+app.mount("/app", StaticFiles(directory=BASE_DIR / "frontend", html=True), name="frontend")
 
 
 @app.get("/")
