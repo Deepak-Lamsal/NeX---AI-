@@ -8,8 +8,11 @@ from models.conversation import Conversation
 from models.message import Message
 from models.user import User
 from schemas import ConversationCreate, ConversationOut, MessageCreate, MessageOut
+from services.ai_service import AIServiceError, generate_reply
 
 router = APIRouter(prefix="/conversations", tags=["conversations"])
+
+MAX_HISTORY_MESSAGES = 20
 
 
 def get_owned_conversation(
@@ -82,3 +85,39 @@ def list_messages(
         .where(Message.conversation_id == convo.id)
         .order_by(Message.created_at, Message.id)
     ).all()
+
+
+@router.post(
+    "/{conversation_id}/chat",
+    response_model=MessageOut,
+    status_code=status.HTTP_201_CREATED,
+)
+def chat(
+    conversation_id: int,
+    data: MessageCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    convo = get_owned_conversation(db, conversation_id, current_user)
+
+    recent = db.scalars(
+        select(Message)
+        .where(Message.conversation_id == convo.id)
+        .order_by(Message.created_at.desc(), Message.id.desc())
+        .limit(MAX_HISTORY_MESSAGES)
+    ).all()
+
+    history = [(m.role, m.content) for m in reversed(recent)]
+    history.append(("user", data.content))
+
+    try:
+        reply_text = generate_reply(history)
+    except AIServiceError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+
+    db.add(Message(conversation_id=convo.id, role="user", content=data.content))
+    reply = Message(conversation_id=convo.id, role="assistant", content=reply_text)
+    db.add(reply)
+    db.commit()
+    db.refresh(reply)
+    return reply

@@ -1,7 +1,11 @@
+import logging
+
 from google import genai
 from google.genai import errors, types
 
 from config import GEMINI_API_KEY, GEMINI_MODEL
+
+logger = logging.getLogger("nex.ai")
 
 client = genai.Client(api_key=GEMINI_API_KEY)
 
@@ -36,6 +40,7 @@ def generate_reply(history: list[tuple[str, str]]) -> str:
             config=types.GenerateContentConfig(system_instruction=SYSTEM_INSTRUCTION),
         )
     except errors.APIError as e:
+        logger.error("Gemini API error: code=%s message=%s", e.code, e.message)
         if e.code == 429:
             raise AIServiceError(
                 "The AI service is busy or the free limit was reached. Please try again in a minute.",
@@ -43,6 +48,7 @@ def generate_reply(history: list[tuple[str, str]]) -> str:
             )
         raise AIServiceError("The AI service returned an error. Please try again.", 502)
     except Exception:
+        logger.exception("Could not reach Gemini")
         raise AIServiceError("Could not reach the AI service.", 502)
 
     if not response.text:

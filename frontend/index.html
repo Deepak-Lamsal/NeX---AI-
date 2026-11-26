@@ -7,37 +7,67 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <main class="card">
-    <h1>NeX AI</h1>
-    <p class="tagline">Next Generation AI</p>
+  <div id="auth-view" class="auth-view">
+    <main class="card">
+      <h1>NeX AI</h1>
+      <p class="tagline">Next Generation AI</p>
 
-    <form id="login-form">
-      <label for="username">Username</label>
-      <input id="username" type="text" autocomplete="username" required>
+      <form id="login-form">
+        <label for="username">Username</label>
+        <input id="username" type="text" autocomplete="username" required>
 
-      <label for="password">Password</label>
-      <input id="password" type="password" autocomplete="current-password" required>
+        <label for="password">Password</label>
+        <input id="password" type="password" autocomplete="current-password" required>
 
-      <button type="submit">Log in</button>
-      <p class="switch">New here? <a href="#" id="show-register">Create an account</a></p>
-    </form>
+        <button type="submit">Log in</button>
+        <p class="switch">New here? <a href="#" id="show-register">Create an account</a></p>
+      </form>
 
-    <form id="register-form" class="hidden">
-      <label for="reg-username">Username</label>
-      <input id="reg-username" type="text" autocomplete="username" minlength="3" maxlength="50" required>
+      <form id="register-form" class="hidden">
+        <label for="reg-username">Username</label>
+        <input id="reg-username" type="text" autocomplete="username" minlength="3" maxlength="50" required>
 
-      <label for="reg-email">Email</label>
-      <input id="reg-email" type="email" autocomplete="email" required>
+        <label for="reg-email">Email</label>
+        <input id="reg-email" type="email" autocomplete="email" required>
 
-      <label for="reg-password">Password (at least 8 characters)</label>
-      <input id="reg-password" type="password" autocomplete="new-password" minlength="8" maxlength="128" required>
+        <label for="reg-password">Password (at least 8 characters)</label>
+        <input id="reg-password" type="password" autocomplete="new-password" minlength="8" maxlength="128" required>
 
-      <button type="submit">Create account</button>
-      <p class="switch">Already have an account? <a href="#" id="show-login">Log in</a></p>
-    </form>
+        <button type="submit">Create account</button>
+        <p class="switch">Already have an account? <a href="#" id="show-login">Log in</a></p>
+      </form>
 
-    <p id="message" role="status"></p>
-  </main>
+      <p id="message" role="status"></p>
+    </main>
+  </div>
+
+  <div id="chat-view" class="chat-view hidden">
+    <aside class="sidebar">
+      <div class="brand">NeX AI</div>
+      <button id="new-chat" type="button" class="new-chat">+ New chat</button>
+      <nav id="conversation-list" class="conversation-list" aria-label="Your chats"></nav>
+      <div class="user-row">
+        <span id="current-user"></span>
+        <button id="logout" type="button" class="link-button">Log out</button>
+      </div>
+    </aside>
+
+    <section class="chat-main">
+      <header class="chat-header">
+        <h2 id="chat-title">NeX AI</h2>
+      </header>
+      <div id="messages" class="messages" aria-live="polite"></div>
+
+      <div class="composer">
+        <p id="chat-error" class="chat-error" role="alert"></p>
+        <form id="chat-form" class="chat-form">
+          <textarea id="chat-input" rows="1" maxlength="4000" placeholder="Message NeX AI" aria-label="Message NeX AI"></textarea>
+          <button id="send-button" type="submit">Send</button>
+        </form>
+        <p class="hint">Enter to send, Shift+Enter for a new line.</p>
+      </div>
+    </section>
+  </div>
 
   <script src="script.js"></script>
 </body>
