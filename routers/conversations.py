@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from database import get_db
@@ -7,7 +7,13 @@ from dependencies import get_current_user
 from models.conversation import Conversation
 from models.message import Message
 from models.user import User
-from schemas import ConversationCreate, ConversationOut, MessageCreate, MessageOut
+from schemas import (
+    ConversationCreate,
+    ConversationOut,
+    ConversationUpdate,
+    MessageCreate,
+    MessageOut,
+)
 from services.ai_service import AIServiceError, generate_reply
 
 router = APIRouter(prefix="/conversations", tags=["conversations"])
@@ -52,6 +58,32 @@ def list_conversations(
         .where(Conversation.user_id == current_user.id)
         .order_by(Conversation.created_at.desc())
     ).all()
+
+
+@router.patch("/{conversation_id}", response_model=ConversationOut)
+def rename_conversation(
+    conversation_id: int,
+    data: ConversationUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    convo = get_owned_conversation(db, conversation_id, current_user)
+    convo.title = data.title
+    db.commit()
+    db.refresh(convo)
+    return convo
+
+
+@router.delete("/{conversation_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_conversation(
+    conversation_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    convo = get_owned_conversation(db, conversation_id, current_user)
+    db.execute(delete(Message).where(Message.conversation_id == convo.id))
+    db.delete(convo)
+    db.commit()
 
 
 @router.post(
