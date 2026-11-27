@@ -339,3 +339,51 @@ input:focus {
   50% { content: ".."; }
   75%, 100% { content: "..."; }
 }
+/* ---------- Chat rows with rename and delete ---------- */
+
+.convo-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  border-radius: 8px;
+}
+
+.convo-row:hover {
+  background: var(--bg-hover);
+}
+
+.convo-row.active {
+  background: var(--bg-active);
+}
+
+.convo-row .convo-item {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+}
+
+.convo-row.active .convo-item {
+  font-weight: 600;
+}
+
+.convo-action {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  font-size: 0.95rem;
+  line-height: 1;
+  color: var(--text-soft);
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.convo-action:hover {
+  background: var(--bg-active);
+  color: var(--text);
+}
+
+.convo-action.danger:hover {
+  color: #c62828;
+}

@@ -109,6 +109,16 @@ function addMessage(role, text) {
   messagesBox.scrollTop = messagesBox.scrollHeight;
 }
 
+function makeActionButton(symbol, label, extraClass) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "convo-action" + (extraClass ? " " + extraClass : "");
+  button.textContent = symbol;
+  button.title = label;
+  button.setAttribute("aria-label", label);
+  return button;
+}
+
 async function loadConversations() {
   const result = await api("/conversations");
   if (!result.ok) {
@@ -117,16 +127,95 @@ async function loadConversations() {
 
   conversationList.replaceChildren();
   for (const convo of result.data) {
+    const row = document.createElement("div");
+    row.className = "convo-row";
+    if (convo.id === currentConversationId) {
+      row.classList.add("active");
+    }
+
     const item = document.createElement("button");
     item.type = "button";
     item.className = "convo-item";
-    if (convo.id === currentConversationId) {
-      item.classList.add("active");
-    }
     item.textContent = convo.title;
     item.addEventListener("click", () => openConversation(convo.id, convo.title));
-    conversationList.appendChild(item);
+
+    const renameButton = makeActionButton("✎", "Rename chat: " + convo.title);
+    renameButton.addEventListener("click", () =>
+      renameConversation(convo.id, convo.title)
+    );
+
+    const deleteButton = makeActionButton("✕", "Delete chat: " + convo.title, "danger");
+    deleteButton.addEventListener("click", () =>
+      deleteConversation(convo.id, convo.title)
+    );
+
+    row.append(item, renameButton, deleteButton);
+    conversationList.appendChild(row);
   }
+}
+
+async function renameConversation(id, oldTitle) {
+  const input = window.prompt("Rename chat", oldTitle);
+  if (input === null) {
+    return;
+  }
+
+  const title = input.trim();
+  if (!title || title === oldTitle) {
+    return;
+  }
+
+  chatError.textContent = "";
+  const result = await api("/conversations/" + id, {
+    method: "PATCH",
+    body: JSON.stringify({ title }),
+  });
+  if (result.status === 401) {
+    return;
+  }
+
+  if (!result.ok) {
+    chatError.textContent =
+      result.status === 0
+        ? "Cannot reach the server."
+        : errorText(result.data, "Could not rename the chat. Titles can be up to 100 characters.");
+    return;
+  }
+
+  if (id === currentConversationId) {
+    chatTitle.textContent = result.data.title;
+  }
+  await loadConversations();
+}
+
+async function deleteConversation(id, title) {
+  if (isSending) {
+    return;
+  }
+  if (!window.confirm('Delete "' + title + '"? This cannot be undone.')) {
+    return;
+  }
+
+  chatError.textContent = "";
+  const result = await api("/conversations/" + id, { method: "DELETE" });
+  if (result.status === 401) {
+    return;
+  }
+
+  if (!result.ok) {
+    chatError.textContent =
+      result.status === 0
+        ? "Cannot reach the server."
+        : errorText(result.data, "Could not delete the chat.");
+    return;
+  }
+
+  if (id === currentConversationId) {
+    currentConversationId = null;
+    chatTitle.textContent = "NeX AI";
+    showEmpty("Select a chat or start a new one.");
+  }
+  await loadConversations();
 }
 
 async function loadMessages() {
