@@ -7,7 +7,7 @@ from database import Base, engine
 from models.user import User
 from models.conversation import Conversation
 from models.message import Message
-from routers import auth, chat, conversations
+from routers import account, auth, chat, conversations
 
 Base.metadata.create_all(bind=engine)
 
@@ -17,6 +17,7 @@ app = FastAPI()
 app.include_router(chat.router)
 app.include_router(auth.router)
 app.include_router(conversations.router)
+app.include_router(account.router)
 app.mount("/app", StaticFiles(directory=BASE_DIR / "frontend", html=True), name="frontend")
 
 
